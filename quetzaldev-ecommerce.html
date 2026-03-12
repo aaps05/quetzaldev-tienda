@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QuetzalDev — Tienda de Software</title>
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&display=swap" rel="stylesheet">
+<style>
+    :root {
+    --teal:       #196997;
+    --teal-dark:  #1f5f77;
+    --teal-light: #e8f4f8;
+    --teal-mid:   #b8d8e4;
+    --text:       #222222;
+    --text2:      #ffffff;
+    --muted:      #666666;
+    --border:     #d8d8d8;
+    --bg:         #ffffff;
+    --bg2:        #f7f9fa00;
+    --bg3:        #196997;
+    }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: 'Lato', sans-serif; font-size: 15px; line-height: 1.6; }
+
+    /* HEADER */
+    header {
+        background: var(--bg3); border-bottom: 1px solid var(--border);
+        padding: 0 5%; display: flex; align-items: center; justify-content: space-between;
+        height: 60px; position: sticky; top: 0; z-index: 100;
+    }
+    .logo { font-weight: 900; font-size: 1.2rem; letter-spacing: .02em; color: var(--text2); text-decoration: none; }
+    .logo span { color: var(--teal); }
+    nav { display: flex; align-items: center; gap: 28px; }
+    nav a { color: var(--text2); text-decoration: none; font-size: .88rem; transition: color .15s; }
+    nav a:hover { color: var(--text); }
+    nav a.active { font-weight: 700; color: var(--text2); }
+    .cart-btn {
+        background: none; border: none; color: var(--text2); cursor: pointer;
+        font-family: 'Lato', sans-serif; font-size: .88rem;
+        display: flex; align-items: center; gap: 6px; transition: color .15s;
+        text-decoration: none;
+    }
+    .cart-btn:hover { color: var(--text); }
+    .cart-count {
+        background: var(--teal); color: #fff; border-radius: 50%;
+        width: 18px; height: 18px; display: flex; align-items: center; justify-content: center;
+        font-size: .68rem; font-weight: 700;
+    }
+
+    /* HERO */
+    .hero { background: var(--teal); padding: 52px 5%; text-align: center; }
+    .hero h1 { font-weight: 300; font-size: clamp(1.5rem, 3vw, 2.2rem); color: #fff; letter-spacing: .01em; }
+
+    /* SECTION */
+    .section { padding: 44px 5% 56px; }
+    .section-title {
+        font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+        color: var(--muted); margin-bottom: 28px; padding-bottom: 10px; border-bottom: 1px solid var(--border);
+    }
+
+  /* PRODUCT BLOCK */
+    .product-block {
+        display: grid; grid-template-columns: 420px 1fr;
+        border: 1px solid var(--border); margin-bottom: 28px; background: var(--bg);
+    }
+    /* CAMBIO PARA PONER IMG REAL */
+    .product-img-col {
+        background: var(--bg2); border-right: 1px solid var(--border);
+        display: flex; align-items: center; justify-content: center;
+        min-height: 300px; padding: 40px;
+        position: relative; overflow: hidden;
+    }
+    .product-icon-large { width: 130px; height: 130px; transition: opacity .3s ease; }
+    .product-icon-large svg { width: 100%; height: 100%; }
+
+    /* IMG REAL: POSICION, OCUPA TODO EL ESPACIO DE COL, INVISIBLE POR DEFECTO */
+    .product-real-img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        padding: 30px;
+        opacity: 0;
+        transition: opacity .35s ease;
+        background: var(--bg);
+    }
+    .product-real-img.visible { opacity: 1; }
+
+    .product-info-col { padding: 32px 36px; }
+    .product-name { font-weight: 700; font-size: 1.35rem; margin-bottom: 8px; }
+    .product-desc { color: var(--muted); font-size: .9rem; line-height: 1.65; margin-bottom: 20px; font-weight: 300; }
+
+    /* LICENSE */
+    .license-label {
+        display: block; font-size: .72rem; font-weight: 700;
+        letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 9px;
+    }
+    .license-options { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+    .license-option {
+        display: flex; align-items: center; gap: 12px;
+        border: 1px solid var(--border); padding: 10px 14px;
+        cursor: pointer; transition: border-color .15s, background .15s; background: var(--bg);
+    }
+    .license-option:hover { border-color: var(--teal); background: var(--teal-light); }
+    .license-option.selected { border-color: var(--teal); background: var(--teal-light); }
+    .license-option input[type="radio"] { display: none; }
+    .radio-dot {
+        width: 15px; height: 15px; border-radius: 50%; border: 1.5px solid var(--border);
+        flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all .15s;
+    }
+    .license-option.selected .radio-dot { border-color: var(--teal); }
+    .radio-dot::after { content:''; width:7px; height:7px; border-radius:50%; background:var(--teal); opacity:0; transition:opacity .15s; }
+    .license-option.selected .radio-dot::after { opacity:1; }
+    .license-info { flex: 1; }
+    .license-name { font-size: .87rem; font-weight: 700; }
+    .license-sub { font-size: .77rem; color: var(--muted); margin-top: 1px; }
+    .license-price { font-size: .93rem; font-weight: 700; color: var(--teal-dark); }
+
+    /* INFO PANEL */
+    .info-panel {
+        border-left: 3px solid var(--teal); background: var(--teal-light);
+        padding: 11px 15px; margin-bottom: 16px; font-size: .84rem; display: none;
+    }
+    .info-panel.visible { display: block; }
+    .info-panel strong { display: block; color: var(--teal-dark); margin-bottom: 5px; font-size: .82rem; }
+    .info-features { list-style: none; }
+    .info-features li { padding: 1px 0; color: var(--muted); font-size: .83rem; }
+    .info-features li::before { content:'— '; color: var(--teal); font-weight: 700; }
+
+    /* BUTTONS */
+    .add-btn {
+        width: 100%; padding: 13px; background: var(--teal); color: #fff;
+        font-family: 'Lato', sans-serif; font-weight: 700; font-size: .85rem;
+        letter-spacing: .05em; text-transform: uppercase; border: none; cursor: pointer; transition: background .15s;
+    }
+    .add-btn:hover { background: var(--teal-dark); }
+    .add-btn.added { background: #3a8a5c; }
+    .tax-note { font-size: .74rem; color: var(--muted); margin-top: 9px; }
+
+    /* CART */
+    .overlay { position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:200; opacity:0; pointer-events:none; transition:opacity .25s; }
+    .overlay.open { opacity:1; pointer-events:all; }
+    .cart-sidebar {
+        position:fixed; top:0; right:0; bottom:0; width:min(390px,100vw);
+        background:var(--bg); border-left:1px solid var(--border); z-index:201;
+        transform:translateX(100%); transition:transform .3s ease; display:flex; flex-direction:column;
+    }
+    .cart-sidebar.open { transform:translateX(0); }
+    .sidebar-head { padding:18px 22px 14px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+    .sidebar-head h2 { font-size:.88rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; }
+    .close-btn { background:none; border:1px solid var(--border); color:var(--muted); width:28px; height:28px; cursor:pointer; font-size:.9rem; display:flex; align-items:center; justify-content:center; transition:all .15s; }
+    .close-btn:hover { border-color:var(--text); color:var(--text); }
+    .cart-items { flex:1; overflow-y:auto; padding:14px 22px; }
+    .cart-empty { text-align:center; padding:44px 20px; color:var(--muted); font-size:.88rem; }
+    .cart-item { border:1px solid var(--border); padding:11px 13px; margin-bottom:7px; display:flex; align-items:flex-start; gap:10px; }
+    .item-icon-box { width:34px; height:34px; background:var(--teal-light); border:1px solid var(--teal-mid); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .item-icon-box svg { width:18px; height:18px; }
+    .item-info { flex:1; }
+    .item-name { font-weight:700; font-size:.86rem; }
+    .item-sub { color:var(--muted); font-size:.76rem; margin-top:1px; }
+    .item-price { font-weight:700; font-size:.88rem; color:var(--teal-dark); white-space:nowrap; }
+    .remove-item { background:none; border:none; color:var(--muted); cursor:pointer; font-size:.82rem; padding:2px; transition:color .15s; }
+    .remove-item:hover { color:#c0392b; }
+    .cart-footer { padding:14px 22px 22px; border-top:1px solid var(--border); }
+    .cart-total { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+    .total-label { font-size:.72rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); }
+    .total-amount { font-size:1.25rem; font-weight:700; color:var(--teal-dark); }
+    .checkout-btn { width:100%; padding:13px; background:var(--teal); color:#fff; font-family:'Lato',sans-serif; font-weight:700; font-size:.85rem; letter-spacing:.06em; text-transform:uppercase; border:none; cursor:pointer; transition:background .15s; }
+    .checkout-btn:hover { background:var(--teal-dark); }
+    .checkout-btn:disabled { background:var(--border); color:var(--muted); pointer-events:none; }
+
+    /* MODAL */
+    .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.45); backdrop-filter:blur(3px); z-index:300; display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition:opacity .25s; padding:20px; }
+    .modal-overlay.open { opacity:1; pointer-events:all; }
+    .modal { background:var(--bg); border:1px solid var(--border); width:100%; max-width:450px; max-height:90vh; overflow-y:auto; }
+    .modal-head { background:var(--teal); padding:18px 26px; display:flex; justify-content:space-between; align-items:center; }
+    .modal-head h3 { font-weight:300; font-size:1.05rem; color:#fff; letter-spacing:.02em; }
+    .modal-steps { display:flex; gap:6px; align-items:center; }
+    .step-dot { width:22px; height:22px; border-radius:50%; background:rgba(255,255,255,.25); border:1.5px solid rgba(255,255,255,.5); display:flex; align-items:center; justify-content:center; font-size:.7rem; font-weight:700; color:#fff; transition:all .25s; }
+    .step-dot.active { background:#fff; color:var(--teal); border-color:#fff; }
+    .step-dot.done { background:rgba(255,255,255,.9); color:var(--teal); border-color:#fff; }
+    .modal-body { padding:22px 26px; }
+    .form-group { margin-bottom:14px; }
+    .form-label { display:block; font-size:.72rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin-bottom:5px; }
+    .form-input { width:100%; background:var(--bg); border:1px solid var(--border); color:var(--text); padding:9px 11px; font-family:'Lato',sans-serif; font-size:.88rem; transition:border-color .15s; }
+    .form-input:focus { outline:none; border-color:var(--teal); }
+    .form-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+
+    /* COLUMNAS DE PAGO */
+    .payment-methods { display:grid; grid-template-columns:1fr 1fr 1fr; gap:7px; margin-bottom:18px; }
+
+    .pay-method { border:1px solid var(--border); padding:13px 10px; cursor:pointer; text-align:center; transition:all .15s; }
+    .pay-method:hover { border-color:var(--teal); }
+    .pay-method.selected { border-color:var(--teal); background:var(--teal-light); }
+    .pay-name { font-size:.8rem; font-weight:700; margin-top:4px; }
+    .pay-abbr { font-size:1.1rem; font-weight:900; color:var(--teal); }
+    .sandbox-badge { display:inline-flex; align-items:center; gap:5px; background:#fff8e1; border:1px solid #ffe082; color:#7a6000; padding:5px 11px; font-size:.72rem; font-weight:700; letter-spacing:.04em; text-transform:uppercase; margin-bottom:12px; }
+    .order-summary-mini { background:var(--bg2); border:1px solid var(--border); padding:13px 15px; margin-bottom:14px; }
+    .order-row { display:flex; justify-content:space-between; font-size:.84rem; padding:3px 0; color:var(--muted); }
+    .order-row.total { border-top:1px solid var(--border); margin-top:7px; padding-top:9px; font-weight:700; font-size:.92rem; color:var(--text); }
+    .order-row.total span:last-child { color:var(--teal-dark); }
+    .modal-footer { padding:0 26px 24px; display:flex; gap:8px; }
+    .btn-back { flex:0 0 auto; background:var(--bg); border:1px solid var(--border); color:var(--text); padding:10px 18px; cursor:pointer; font-family:'Lato',sans-serif; font-size:.8rem; font-weight:700; letter-spacing:.04em; text-transform:uppercase; transition:all .15s; }
+    .btn-back:hover { border-color:var(--teal); color:var(--teal); }
+    .btn-next { flex:1; background:var(--teal); color:#fff; border:none; padding:10px; cursor:pointer; font-family:'Lato',sans-serif; font-weight:700; font-size:.8rem; letter-spacing:.06em; text-transform:uppercase; transition:background .15s; }
+    .btn-next:hover { background:var(--teal-dark); }
+
+    /* SUCCESS */
+    .success-screen { text-align:center; padding:28px 26px 32px; }
+    .success-icon { width:58px; height:58px; background:var(--teal); border-radius:50%; margin:0 auto 18px; display:flex; align-items:center; justify-content:center; }
+    .success-icon svg { width:28px; height:28px; }
+    .success-screen h3 { font-weight:700; font-size:1.2rem; margin-bottom:9px; }
+    .success-screen p { color:var(--muted); font-size:.88rem; line-height:1.65; margin-bottom:16px; }
+    .order-id { background:var(--teal-light); border:1px solid var(--teal-mid); display:inline-block; padding:7px 18px; font-weight:700; font-size:.88rem; color:var(--teal-dark); margin-bottom:14px; }
+    .sim-note { background:#fff8e1; border:1px solid #ffe082; padding:9px 13px; font-size:.76rem; color:#7a6000; margin-bottom:18px; text-align:left; }
+
+    /* TOAST */
+    .toast { position:fixed; bottom:22px; left:50%; transform:translateX(-50%) translateY(60px); background:var(--teal-dark); color:#fff; padding:10px 20px; font-size:.84rem; font-weight:700; z-index:400; transition:transform .3s ease; border-left:3px solid var(--teal-light); box-shadow:0 4px 18px rgba(0,0,0,.2); }
+    .toast.show { transform:translateX(-50%) translateY(0); }
+
+    .step-content { display:none; }
+    .step-content.active { display:block; }
+
+    /* CONTACT STRIP */
+    .contact-strip { background:var(--teal-light); border-top:1px solid var(--teal-mid); border-bottom:1px solid var(--teal-mid); padding:16px 5%; text-align:center; font-size:.87rem; color:var(--teal-dark); }
+    .contact-strip a { color:var(--teal); font-weight:700; text-decoration:none; }
+    .contact-strip a:hover { text-decoration:underline; }
+
+    /* FOOTER */
+    footer { border-top:1px solid var(--border); padding:22px 5%; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; }
+    .footer-text { color:var(--muted); font-size:.76rem; }
+    .footer-badges { display:flex; gap:16px; flex-wrap:wrap; }
+    .sec-badge { font-size:.74rem; color:var(--muted); display:flex; align-items:center; gap:5px; }
+    .sec-badge::before { content:''; width:5px; height:5px; background:var(--teal); border-radius:50%; flex-shrink:0; }
+
+    @media (max-width: 800px) {
+        .product-block { grid-template-columns:1fr; }
+        .product-img-col { border-right:none; border-bottom:1px solid var(--border); min-height:180px; }
+        .form-row { grid-template-columns:1fr; }
+    }
+    </style>
+    </head>
+    <body>
+
+    <header>
+    <a class="logo" href="#">QZ</a>
+    <nav>
+        <a class="cart-btn" href="https://sites.google.com/ingenieria.usac.edu.gt/g5quetzaldev/inicio" target="_top">
+        Inicio
+        </a>
+        <a class="cart-btn" href="https://sites.google.com/ingenieria.usac.edu.gt/g5quetzaldev/nosotros" target="_top">
+        Nosotros
+        </a>
+        <a href="#" class="active">Tienda</a>
+        <a href="#">Contacto</a>
+        <button class="cart-btn" onclick="openCart()">
+        Carrito
+        <span style="background-color: var(--text);" class="cart-count" id="cartCount">0</span>
+        </button>
+    </nav>
+    </header>
+
+    <div class="hero">
+    <h1>Soluciones digitales para impulsar tu futuro</h1>
+    </div>
+
+    <section class="section">
+    <div class="section-title">Productos disponibles</div>
+
+    <!-- OFFICE -->
+    <div class="product-block">
+        <div class="product-img-col">
+            <!-- SVG original -->
+            <div class="product-icon-large" id="svg-office">
+                <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="4" y="4" width="92" height="92" rx="6" fill="#D83B01"/>
+                <rect x="14" y="14" width="32" height="32" rx="2" fill="white" opacity=".95"/>
+                <rect x="54" y="14" width="32" height="32" rx="2" fill="white" opacity=".7"/>
+                <rect x="14" y="54" width="32" height="32" rx="2" fill="white" opacity=".7"/>
+                <rect x="54" y="54" width="32" height="32" rx="2" fill="white" opacity=".45"/>
+                </svg>
+            </div>
+            <!-- Imagen real: aparece al seleccionar una licencia -->
+            <img class="product-real-img" id="img-office" src="" alt="Microsoft Office"
+                onerror="this.classList.remove('visible');document.getElementById('svg-office').style.opacity='1'">
+        </div>
+        <div class="product-info-col">
+        <div class="product-name">Microsoft Office</div>
+        <div class="product-desc">Suite completa de productividad para hogares y empresas. Incluye Word, Excel, PowerPoint y más, según el plan seleccionado. Licencia digital con entrega inmediata.</div>
+        <span class="license-label">Selecciona tu licencia</span>
+        <div class="license-options" id="options-office">
+            <label class="license-option" onclick="selectLicense('office','home')"><input type="radio" name="office"><div class="radio-dot"></div><div class="license-info"><div class="license-name">Office Home & Student 2024</div><div class="license-sub">1 PC o Mac · Compra unica</div></div><div class="license-price">Q850.00</div></label>
+            <label class="license-option" onclick="selectLicense('office','personal')"><input type="radio" name="office"><div class="radio-dot"></div><div class="license-info"><div class="license-name">Microsoft 365 Personal</div><div class="license-sub">Suscripcion anual · 1 usuario</div></div><div class="license-price">Q495.00</div></label>
+            <label class="license-option" onclick="selectLicense('office','family')"><input type="radio" name="office"><div class="radio-dot"></div><div class="license-info"><div class="license-name">Microsoft 365 Family</div><div class="license-sub">Suscripcion anual · Hasta 6 usuarios</div></div><div class="license-price">Q800.00</div></label>
+            <label class="license-option" onclick="selectLicense('office','business')"><input type="radio" name="office"><div class="radio-dot"></div><div class="license-info"><div class="license-name">Microsoft 365 Business</div><div class="license-sub">Plan mensual · Por usuario</div></div><div class="license-price">Q250.00</div></label>
+        </div>
+        <div class="info-panel" id="info-office"><strong id="info-office-title"></strong><ul class="info-features" id="info-office-features"></ul></div>
+        <button class="add-btn" id="btn-office" onclick="addToCart('office')">Añadir al carrito</button>
+        <div class="tax-note">Impuesto incluido. Entrega digital inmediata.**</div>
+        </div>
+    </div>
+
+    <!-- WINDOWS -->
+    <div class="product-block">
+        <div class="product-img-col">
+            <div class="product-icon-large" id="svg-windows">
+                <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="100" height="100" fill="#0078D4"/>
+                <rect x="8" y="8" width="38" height="38" fill="white"/>
+                <rect x="54" y="8" width="38" height="38" fill="white" opacity=".75"/>
+                <rect x="8" y="54" width="38" height="38" fill="white" opacity=".75"/>
+                <rect x="54" y="54" width="38" height="38" fill="white" opacity=".5"/>
+                </svg>
+            </div>
+            <img class="product-real-img" id="img-windows" src="" alt="Microsoft Windows"
+                onerror="this.classList.remove('visible');document.getElementById('svg-windows').style.opacity='1'">
+        </div>
+        <div class="product-info-col">
+        <div class="product-name">Microsoft Windows</div>
+        <div class="product-desc">El sistema operativo mas utilizado en el mundo. Seguro, veloz y compatible con todo el software empresarial moderno. Licencia OEM digital activada directamente en tu equipo.</div>
+        <span class="license-label">Selecciona tu edicion</span>
+        <div class="license-options" id="options-windows">
+            <label class="license-option" onclick="selectLicense('windows','home')"><input type="radio" name="windows"><div class="radio-dot"></div><div class="license-info"><div class="license-name">Windows 11 Home</div><div class="license-sub">Uso personal · 1 PC</div></div><div class="license-price">Q1,120.00</div></label>
+            <label class="license-option" onclick="selectLicense('windows','pro')"><input type="radio" name="windows"><div class="radio-dot"></div><div class="license-info"><div class="license-name">Windows 11 Pro</div><div class="license-sub">Uso profesional · 1 PC</div></div><div class="license-price">Q1,595.00</div></label>
+            <label class="license-option" onclick="selectLicense('windows','pro-n')"><input type="radio" name="windows"><div class="radio-dot"></div><div class="license-info"><div class="license-name">Windows 10 Pro</div><div class="license-sub">Uso personal · 1 PC</div></div><div class="license-price">Q999.00</div></label>
+            <label class="license-option" onclick="selectLicense('windows','server')"><input type="radio" name="windows"><div class="radio-dot"></div><div class="license-info"><div class="license-name">Windows Server 2022</div><div class="license-sub">Licencia servidor</div></div><div class="license-price">Q3,500.00</div></label>
+        </div>
+        <div class="info-panel" id="info-windows"><strong id="info-windows-title"></strong><ul class="info-features" id="info-windows-features"></ul></div>
+        <button class="add-btn" id="btn-windows" onclick="addToCart('windows')">Añadir al carrito</button>
+        <div class="tax-note">Impuesto incluido. Entrega digital inmediata.**</div>
+        </div>
+    </div>
+
+    <!-- ANTIVIRUS -->
+    <div class="product-block">
+        <div class="product-img-col">
+            <div class="product-icon-large" id="svg-antivirus">
+                <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M50 6 L90 24 L90 52 C90 73 72 90 50 96 C28 90 10 73 10 52 L10 24 Z" fill="#2d7d9a"/>
+                <path d="M50 16 L82 32 L82 52 C82 69 66 84 50 90 C34 84 18 69 18 52 L18 32 Z" fill="#1f5f77"/>
+                <path d="M32 50 L43 63 L70 36" stroke="white" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                </svg>
+            </div>
+            <img class="product-real-img" id="img-antivirus" src="" alt="Antivirus"
+                onerror="this.classList.remove('visible');document.getElementById('svg-antivirus').style.opacity='1'">
+        </div>
+        <div class="product-info-col">
+        <div class="product-name">Licencias Antivirus</div>
+        <div class="product-desc">Proteccion avanzada contra malware, ransomware y amenazas ciberneticas. Disponible para usuarios individuales y equipos corporativos de todos los tamanios.</div>
+        <span class="license-label">Elige tu proteccion</span>
+        <div class="license-options" id="options-antivirus">
+            <label class="license-option" onclick="selectLicense('antivirus','norton')"><input type="radio" name="antivirus"><div class="radio-dot"></div><div class="license-info"><div class="license-name">McAfee Antivirus Plus</div><div class="license-sub">1 dispositivo · Anual</div></div><div class="license-price">Q200.00</div></label>
+            <label class="license-option" onclick="selectLicense('antivirus','kaspersky')"><input type="radio" name="antivirus"><div class="radio-dot"></div><div class="license-info"><div class="license-name">Kaspersky Total Security</div><div class="license-sub">5 dispositivos · Anual</div></div><div class="license-price">Q350.00</div></label>
+            <label class="license-option" onclick="selectLicense('antivirus','bitdefender')"><input type="radio" name="antivirus"><div class="radio-dot"></div><div class="license-info"><div class="license-name">Bitdefender GravityZone</div><div class="license-sub">Empresas · 10 endpoints</div></div><div class="license-price">Q640.00</div></label>
+            <label class="license-option" onclick="selectLicense('antivirus','eset')"><input type="radio" name="antivirus"><div class="radio-dot"></div><div class="license-info"><div class="license-name">ESET Endpoint Security</div><div class="license-sub">Corporativo · 25 PCs</div></div><div class="license-price">Q1,500.00</div></label>
+        </div>
+        <div class="info-panel" id="info-antivirus"><strong id="info-antivirus-title"></strong><ul class="info-features" id="info-antivirus-features"></ul></div>
+        <button class="add-btn" id="btn-antivirus" onclick="addToCart('antivirus')">Añadir al carrito</button>
+        <div class="tax-note">Impuesto incluido. Entrega digital inmediata.**</div>
+        </div>
+    </div>
+    </section>
+
+    <div class="contact-strip">
+    ¿Buscas mas informacion? Escribenos a <a href="mailto:quetzaldev@gmail.com">quetzaldev@gmail.com</a> para obtener mas informacion.
+    </div>
+
+    <footer>
+    <div class="footer-text">© 2026 QuetzalDev · Sistemas Organizacionales y Gerenciales 1 · G5</div>
+    <div class="footer-badges">
+        <span class="sec-badge">SSL Seguro</span>
+        <span class="sec-badge">Licencias Originales</span>
+        <span class="sec-badge">Entrega Inmediata</span>
+    </div>
+    </footer>
+
+    <!-- OVERLAY -->
+    <div class="overlay" id="overlay" onclick="closeCart()"></div>
+
+    <!-- CART SIDEBAR -->
+    <div class="cart-sidebar" id="cartSidebar">
+    <div class="sidebar-head">
+        <h2>Carrito de compras</h2>
+        <button class="close-btn" onclick="closeCart()">X</button>
+    </div>
+    <div class="cart-items" id="cartItems">
+        <div class="cart-empty">Tu carrito esta vacio. Agrega un producto para comenzar.</div>
+    </div>
+    <div class="cart-footer">
+        <div class="cart-total">
+        <span class="total-label">Total a pagar</span>
+        <span class="total-amount" id="cartTotal">Q0.00</span>
+        </div>
+        <button class="checkout-btn" id="checkoutBtn" disabled onclick="openCheckout()">Proceder al pago</button>
+    </div>
+    </div>
+
+    <!-- CHECKOUT -->
+    <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+        <div class="modal-head">
+        <h3 id="modalTitle">Datos de facturacion</h3>
+        <div class="modal-steps">
+            <div class="step-dot active" id="dot1">1</div>
+            <div style="width:14px;height:1px;background:rgba(255,255,255,.4)"></div>
+            <div class="step-dot" id="dot2">2</div>
+            <div style="width:14px;height:1px;background:rgba(255,255,255,.4)"></div>
+            <div class="step-dot" id="dot3">3</div>
+        </div>
+        </div>
+
+        <div class="modal-body step-content active" id="step1">
+        <div class="form-group"><label class="form-label">Nombre completo</label><input class="form-input" type="text" id="fname" placeholder="Juan Garcia"></div>
+        <div class="form-group"><label class="form-label">Correo electronico</label><input class="form-input" type="email" id="femail" placeholder="juan@email.com"></div>
+        <div class="form-row">
+            <div class="form-group"><label class="form-label">Pais</label><input class="form-input" type="text" id="fcountry" value="Guatemala"></div>
+            <div class="form-group"><label class="form-label">Ciudad</label><input class="form-input" type="text" id="fcity" placeholder="Guatemala City"></div>
+        </div>
+        </div>
+
+        <!-- STEP 2: PayPal, Tarjeta, Transferencia -->
+        <div class="modal-body step-content" id="step2">
+        <div class="payment-methods">
+            <div class="pay-method selected" id="pm-paypal" onclick="selectPayment('paypal')"><div class="pay-abbr" style="color:#003087;font-size:1.3rem;font-weight:900">PP</div><div class="pay-name" style="color:#003087">PayPal</div></div>
+            <div class="pay-method" id="pm-card" onclick="selectPayment('card')"><div class="pay-abbr">TC</div><div class="pay-name">Tarjeta</div></div>
+            <div class="pay-method" id="pm-bank" onclick="selectPayment('bank')"><div class="pay-abbr">BK</div><div class="pay-name">Transferencia</div></div>
+        </div>
+        <div id="paypal-info">
+            <div class="sandbox-badge">Modo Sandbox — Solo simulacion</div>
+            <div class="order-summary-mini">
+            <div style="font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:7px">Resumen de orden</div>
+            <div id="modalOrderRows"></div>
+            <div class="order-row total"><span>Total</span><span id="modalTotal">Q0.00</span></div>
+            </div>
+            <p style="font-size:.8rem;color:var(--muted);line-height:1.6">Seras redirigido a PayPal Sandbox. <strong style="color:var(--text)">No se realizara ningun cobro real.</strong></p>
+        </div>
+        <div id="card-info" style="display:none">
+            <div class="form-group"><label class="form-label">Numero de tarjeta</label><input class="form-input" type="text" placeholder="4242 4242 4242 4242" maxlength="19" oninput="formatCard(this)"></div>
+            <div class="form-row">
+            <div class="form-group"><label class="form-label">Vencimiento</label><input class="form-input" type="text" placeholder="MM/AA" maxlength="5"></div>
+            <div class="form-group"><label class="form-label">CVV</label><input class="form-input" type="text" placeholder="123" maxlength="3"></div>
+            </div>
+            <div style="font-size:.74rem;color:var(--muted);background:var(--teal-light);border:1px solid var(--teal-mid);padding:9px 11px">
+            Tarjeta de prueba: <strong style="color:var(--teal-dark)">4242 4242 4242 4242</strong> · Exp: <strong style="color:var(--teal-dark)">12/28</strong> · CVV: <strong style="color:var(--teal-dark)">123</strong>
+            </div>
+        </div>
+        <div id="bank-info" style="display:none">
+            <div class="order-summary-mini" style="font-size:.84rem;line-height:1.85;color:var(--muted)">
+            <div><strong style="color:var(--text)">Banco:</strong> Banco Industrial Guatemala</div>
+            <div><strong style="color:var(--text)">Cuenta:</strong> 123-456789-0 (Monetaria)</div>
+            <div><strong style="color:var(--text)">Beneficiario:</strong> QuetzalDev S.A.</div>
+            <div><strong style="color:var(--text)">Monto:</strong> <span id="bankTotal" style="color:var(--teal-dark);font-weight:700">Q0.00</span></div>
+            </div>
+            <p style="font-size:.74rem;color:var(--muted)">Simulacion — No realizar transferencia real.</p>
+        </div>
+        </div>
+
+        <div class="modal-body step-content" id="step3">
+        <div class="order-summary-mini">
+            <div style="font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:9px">Confirmar pedido</div>
+            <div id="confirmRows"></div>
+            <div class="order-row total"><span>Total final</span><span id="confirmTotal">Q0.00</span></div>
+        </div>
+        <div id="buyerSummary"></div>
+        </div>
+
+        <div class="modal-footer" id="modalFooter">
+        <button class="btn-back" id="backBtn" onclick="prevStep()" style="display:none">Atras</button>
+        <button class="btn-next" id="nextBtn" onclick="nextStep()">Continuar</button>
+        </div>
+    </div>
+    </div>
+
+    <div class="toast" id="toast"><span id="toastMsg">Producto agregado</span></div>
+
+    <script>
+    const cart = [];
+    const selections = { office:null, windows:null, antivirus:null };
+
+    /* TABLA DE IMG REALES */
+    const productImages = {
+        office: {
+            home:     'https://www.macrosistemas.com/wp-content/uploads/0706-1.jpg',
+            personal: 'https://www.intelaf.com//images/productos/img_adicionales/of365-hprem-esd/of365-hprem-esd_0804250855453030.webp',
+            family:   'https://cdn.pacifiko.com/image/cache/catalog/p/NTgwMDJhZG_625-500x500.png',
+            business: 'https://store.storeimages.cdn-apple.com/1/as-images.apple.com/is/HPSQ2?wid=1144&hei=1144&fmt=jpeg&qlt=95&.v=bmkvc0IxVVhxRXgwbEh5ekpVS1NsZ2tuVHYzMERCZURia3c5SzJFOTlPZ1JqQXJNNVNBK2FoUlQxeHR4MitqOWZMci9hcnZsMFV3a1FrT1ZBdzYwS3c'
+        },
+        windows: {
+            home:    'https://reydelsoftware.com/wp-content/uploads/2022/11/Windows-11-HOME.webp',
+            pro:     'https://i0.wp.com/key-wrld.com/wp-content/uploads/2023/08/win11pro-optimized.webp?fit=1350%2C1350&ssl=1',
+            'pro-n': 'https://cdn.pacifiko.com/image/cache/catalog/p/ZWY5NGVmZW_1727818540-1000x1000.jpg',
+            server:  'https://3clics.gt/images/stories/virtuemart/product/SERSTAND22.jpg'
+        },
+        antivirus: {
+            norton:      'https://tresbizz.com/wp-content/uploads/2022/06/MCAFEE-ANTIVIRUS-PLUS.png',
+            kaspersky:   'https://mercury.vtexassets.com/arquivos/ids/12085239/4000.jpg?v=638138812302170000',
+            bitdefender: 'https://images-cdn.ubuy.co.in/64225f0f03d5657b8a4ce556-bitdefender-gravityzone-business.jpg',
+            eset:        'https://compuaccesoriosmax.com/web/image/product.template/8871/image'
+        }
+    };
+
+    const licenseData = {
+    office: {
+        home:     {name:'Office Home & Student 2024', price:850.00, desc:'Word, Excel, PowerPoint y OneNote. 1 PC o Mac. Compra unica, sin suscripcion.', features:['Word 2024','Excel 2024','PowerPoint 2024','OneNote 2024','1 PC o Mac','Sin suscripcion anual']},
+        personal: {name:'Microsoft 365 Personal',    price:495.00,  desc:'Apps siempre actualizadas para 1 usuario en hasta 5 dispositivos.', features:['Word, Excel, PPT + Outlook','5 dispositivos (PC/Mac/movil)','1 TB OneDrive','Actualizaciones automaticas','Suscripcion anual renovable']},
+        family:   {name:'Microsoft 365 Family',      price:800.00,  desc:'Hasta 6 usuarios, cada uno con 5 dispositivos y 1TB de almacenamiento.', features:['Hasta 6 usuarios','5 dispositivos por usuario','1 TB OneDrive por usuario','Control parental incluido','Renovacion anual']},
+        business: {name:'Microsoft 365 Business',    price:250,  desc:'Para equipos de hasta 300 personas. Teams, SharePoint y seguridad avanzada.', features:['Apps Premium de Office','Microsoft Teams','SharePoint y OneDrive 1TB','Seguridad Azure AD','Hasta 300 usuarios']}
+    },
+    windows: {
+        home:    {name:'Windows 11 Home',    price:1120.00, desc:'Para uso personal y familiar. Microsoft Store, Xbox Game Bar y Windows Hello.', features:['Interfaz moderna','Microsoft Store','Xbox Game Bar','Windows Hello','Actualizaciones gratuitas de por vida']},
+        pro:     {name:'Windows 11 Pro',     price:1595.00, desc:'Para profesionales. BitLocker, Remote Desktop y gestion de dominio corporativo.', features:['Todo lo de Home','BitLocker (cifrado de disco)','Remote Desktop','Hyper-V virtualizacion','Union a dominio Active Directory']},
+        'pro-n': {name:'Windows 10 Pro',   price:999.00, desc:'Para profesionales. BitLocker, Remote Desktop y gestion de dominio corporativo.', features:['Igual que Pro','Sin Windows Media Player','Sin Groove Music y Peliculas','Ideal para entornos regulados']},
+        server:  {name:'Windows Server 2022',price:3500.00, desc:'Para infraestructura empresarial y servidores de red corporativos.', features:['Hyper-V avanzado','Active Directory','Hasta 48 TB RAM por VM','Azure Arc integrado','Seguridad TLS 1.3']}
+    },
+    antivirus: {
+        norton:      {name:'McAfee Antivirus Plus ',      price:200.00,  desc:'Proteccion en tiempo real para 1 dispositivo con VPN y respaldo en nube.', features:['Antivirus en tiempo real','VPN incluida','10 GB backup en nube','Gestor de contrasenas','1 dispositivo por 1 anio']},
+        kaspersky:   {name:'Kaspersky Total Security',  price:350.00,  desc:'Seguridad completa para 5 dispositivos con control parental y VPN.', features:['5 dispositivos multi-plataforma','Control parental','Gestor de contrasenas','Proteccion de camara web','VPN basica incluida']},
+        bitdefender: {name:'Bitdefender GravityZone',   price:640.00,  desc:'Solucion empresarial para 10 endpoints con gestion centralizada en la nube.', features:['10 endpoints','Consola centralizada en nube','EDR (deteccion avanzada)','Firewall gestionado','Soporte 24/7']},
+        eset:        {name:'ESET Endpoint Security',    price:1500.00, desc:'Para equipos corporativos con hasta 25 PCs y consola de administracion.', features:['25 PCs','ESET Protect Cloud','Inspeccion de red','Control de dispositivos USB','Soporte tecnico dedicado']}
+    }
+    };
+
+    function selectLicense(product, key) {
+        document.querySelectorAll('#options-'+product+' .license-option').forEach(el=>el.classList.remove('selected'));
+        event.currentTarget.classList.add('selected');
+        selections[product] = key;
+
+        /* CAMBIAR IMG REAL */
+        const svg = document.getElementById('svg-' + product);
+        const img = document.getElementById('img-' + product);
+        svg.style.opacity = '0';
+        img.src = productImages[product][key];
+        img.classList.add('visible');
+
+        const d = licenseData[product][key];
+        document.getElementById('info-'+product+'-title').textContent = d.desc;
+        document.getElementById('info-'+product+'-features').innerHTML = d.features.map(f=>'<li>'+f+'</li>').join('');
+        document.getElementById('info-'+product).classList.add('visible');
+    }
+
+    function addToCart(product) {
+        const sel = selections[product];
+        if (!sel) { showToast('Primero selecciona una licencia'); return; }
+        const d = licenseData[product][sel];
+        const ex = cart.find(i=>i.product===product);
+        if (ex) cart.splice(cart.indexOf(ex),1);
+        cart.push({product, key:sel, name:d.name, price:d.price});
+        updateCartUI();
+        const btn = document.getElementById('btn-'+product);
+        btn.textContent = 'Agregado al carrito';
+        btn.classList.add('added');
+        showToast(d.name+' agregado');
+        setTimeout(()=>{btn.textContent='Actualizar seleccion';btn.classList.remove('added');}, 2200);
+    }
+
+    function removeFromCart(idx) { cart.splice(idx,1); updateCartUI(); }
+
+    function updateCartUI() {
+        const total = cart.reduce((s,i)=>s+i.price,0);
+        document.getElementById('cartCount').textContent = cart.length;
+        document.getElementById('cartTotal').textContent = 'Q'+total.toFixed(2);
+        document.getElementById('checkoutBtn').disabled = cart.length===0;
+        const c = document.getElementById('cartItems');
+        if (!cart.length) { c.innerHTML='<div class="cart-empty">Tu carrito esta vacio. Agrega un producto para comenzar.</div>'; return; }
+        c.innerHTML = cart.map((item,i)=>`
+            <div class="cart-item">
+            <div class="item-icon-box"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="7" fill="#2d7d9a"/><rect x="14" y="3" width="7" height="7" fill="#2d7d9a" opacity=".6"/><rect x="3" y="14" width="7" height="7" fill="#2d7d9a" opacity=".6"/><rect x="14" y="14" width="7" height="7" fill="#2d7d9a" opacity=".4"/></svg></div>
+            <div class="item-info"><div class="item-name">${item.name}</div><div class="item-sub">Licencia digital · Entrega inmediata</div></div>
+            <div class="item-price">Q${item.price.toFixed(2)}</div>
+            <button class="remove-item" onclick="removeFromCart(${i})">X</button>
+            </div>`).join('');
+    }
+
+    function openCart() { document.getElementById('cartSidebar').classList.add('open'); document.getElementById('overlay').classList.add('open'); }
+    function closeCart() { document.getElementById('cartSidebar').classList.remove('open'); document.getElementById('overlay').classList.remove('open'); }
+
+    let currentStep=1, selectedPayment='paypal';
+
+    function openCheckout() {
+        closeCart(); currentStep=1; selectedPayment='paypal';
+        renderStep();
+        document.getElementById('modalOverlay').classList.add('open');
+    }
+
+    function renderStep() {
+        document.querySelectorAll('.step-content').forEach(el=>el.classList.remove('active'));
+        document.getElementById('step'+currentStep).classList.add('active');
+        [1,2,3].forEach(n=>{
+            const d=document.getElementById('dot'+n);
+            d.className='step-dot';
+            if(n<currentStep){d.classList.add('done');d.textContent='+';}
+            else if(n===currentStep){d.classList.add('active');d.textContent=n;}
+            else d.textContent=n;
+        });
+        document.getElementById('modalTitle').textContent=['Datos de facturacion','Metodo de pago','Confirmar pedido'][currentStep-1];
+        document.getElementById('backBtn').style.display=currentStep>1?'block':'none';
+        document.getElementById('nextBtn').textContent=currentStep===3?'Confirmar y Pagar':'Continuar';
+        if(currentStep===2) populateOrderSummary();
+        if(currentStep===3) populateConfirm();
+    }
+
+    function populateOrderSummary() {
+        const total=cart.reduce((s,i)=>s+i.price,0);
+        document.getElementById('modalOrderRows').innerHTML=cart.map(i=>`<div class="order-row"><span>${i.name}</span><span>Q${i.price.toFixed(2)}</span></div>`).join('');
+        document.getElementById('modalTotal').textContent='Q'+total.toFixed(2);
+        document.getElementById('bankTotal').textContent='Q'+total.toFixed(2);
+    }
+
+    function populateConfirm() {
+        const total=cart.reduce((s,i)=>s+i.price,0);
+        document.getElementById('confirmRows').innerHTML=cart.map(i=>`<div class="order-row"><span>${i.name}</span><span>Q${i.price.toFixed(2)}</span></div>`).join('');
+        document.getElementById('confirmTotal').textContent='Q'+total.toFixed(2);
+        const payLabels={paypal:'PayPal Sandbox',card:'Tarjeta de credito',bank:'Transferencia bancaria'};
+        document.getElementById('buyerSummary').innerHTML=`
+            <div style="background:var(--bg2);border:1px solid var(--border);padding:12px 15px;margin-top:2px;font-size:.84rem;line-height:1.85;color:var(--muted)">
+            <div><strong style="color:var(--text)">Nombre:</strong> ${document.getElementById('fname').value||'N/A'}</div>
+            <div><strong style="color:var(--text)">Email:</strong> ${document.getElementById('femail').value||'N/A'}</div>
+            <div><strong style="color:var(--text)">Pais:</strong> ${document.getElementById('fcountry').value||'Guatemala'}</div>
+            <div><strong style="color:var(--text)">Metodo:</strong> ${payLabels[selectedPayment]}</div>
+            <div style="margin-top:9px;padding:7px 10px;background:#fff8e1;border:1px solid #ffe082;font-size:.76rem;color:#7a6000">
+                SIMULACION — Compra de prueba. Ningun cargo sera procesado en el sistema real.
+            </div>
+            </div>`;
+    }
+
+    function nextStep() {
+        if(currentStep===1 && (!document.getElementById('fname').value||!document.getElementById('femail').value)){showToast('Por favor completa nombre y correo');return;}
+        if(currentStep<3){currentStep++;renderStep();}
+        else processPayment();
+    }
+    function prevStep(){if(currentStep>1){currentStep--;renderStep();}}
+
+    /* METODOS DE PAGO */
+    function selectPayment(method) {
+        selectedPayment=method;
+        ['paypal','card','bank'].forEach(m=>{
+            document.getElementById('pm-'+m).classList.toggle('selected',m===method);
+            document.getElementById(m+'-info').style.display=m===method?'block':'none';
+        });
+    }
+
+    function processPayment() {
+    const nb=document.getElementById('nextBtn'),bb=document.getElementById('backBtn');
+    nb.textContent='Procesando...';nb.disabled=true;bb.style.display='none';
+    setTimeout(()=>{
+        const orderId='QDV-'+Date.now().toString(36).toUpperCase().slice(-8);
+        document.getElementById('modalTitle').textContent='Compra completada';
+        [1,2,3].forEach(n=>{const d=document.getElementById('dot'+n);d.className='step-dot done';d.textContent='+';});
+        document.querySelectorAll('.step-content').forEach(el=>el.remove());
+        document.getElementById('modalFooter').innerHTML='';
+        document.querySelector('.modal').insertAdjacentHTML('beforeend',`
+        <div class="success-screen">
+            <div class="success-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5L20 7" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <h3>Pago procesado exitosamente</h3>
+            <p>Tu licencia ha sido procesada. Recibiras las claves de activacion en tu correo electronico en los proximos minutos.</p>
+            <div class="order-id">Orden: ${orderId}</div>
+            <div class="sim-note">SIMULACION — Esta fue una compra de prueba. Ningun cargo fue procesado en el sistema real.</div>
+            <button class="add-btn" style="max-width:200px;margin:0 auto;display:block" onclick="closeModalAndReset()">Volver a la tienda</button>
+        </div>`);
+        cart.length=0;updateCartUI();
+    },2000);
+    }
+
+    function closeModalAndReset(){document.getElementById('modalOverlay').classList.remove('open');setTimeout(()=>location.reload(),200);}
+
+    let toastTimer;
+    function showToast(msg){
+        document.getElementById('toastMsg').textContent=msg;
+        const t=document.getElementById('toast');
+        t.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer=setTimeout(()=>t.classList.remove('show'),2800);
+    }
+
+    function formatCard(input){
+        let v=input.value.replace(/\D/g,'').substring(0,16);
+        input.value=v.replace(/(.{4})/g,'$1 ').trim();
+    }
+
+    selectPayment('paypal');
+    ['card-info','bank-info'].forEach(id=>document.getElementById(id).style.display='none');
+    document.getElementById('paypal-info').style.display='block';
+    </script>
+</body>
+</html>
